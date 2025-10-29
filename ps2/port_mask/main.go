@@ -30,6 +30,14 @@ func main() {
 	}
 	defer obj.Close()
 
+	var pd port_maskProcessData
+	pd.Port = *port
+	pd.Comm = stringToInt8Array(*p_name)
+
+	if err := obj.port_maskMaps.P_data.Put(uint32(0), pd); err != nil {
+		log.Fatalf("err %v putting val in map", err)
+	}
+
 	// link to interface
 	link, err := link.AttachLSM(
 		link.LSMOptions{
@@ -39,14 +47,6 @@ func main() {
 		log.Fatalf("err %v creating link", err)
 	}
 	defer link.Close()
-
-	var pd port_maskProcessData
-	pd.Port = *port
-	pd.Comm = stringToInt8Array(*p_name)
-
-	if obj.port_maskMaps.P_data.Put(uint32(0), pd) != nil {
-		log.Fatalf("err %v putting val in map", err)
-	}
 
 	stop := make(chan os.Signal, 5)
 	signal.Notify(stop, os.Interrupt)
